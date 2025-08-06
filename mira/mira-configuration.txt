@@ -11,9 +11,7 @@ from ltesrv5 lteuser
 ssh data@localhost -p 9017
 sshmiracAQ3
 
-Log of whether the correct steps have been applied on each PC:
-2024.11.25: configured on miracAQ4 for d85 with port number 9085
-
+#################################################################################
 
 
 STEPS TO FOLLOW FOR EACH PC:
@@ -65,7 +63,8 @@ WantedBy=multi-user.target
 
 Change the number 9017 for each pc: 9017 for d17, 9085 for d85, 9047 for d47, 9099 for dmc
 
-Note: might need to change to usr/bin/autossh depending on how autossh was installed - change this on d47 and d85!
+Note: might need to change to usr/bin/autossh depending on how autossh was installed 
+
 4) Then run:
 
 sudo systemctl daemon-reload
@@ -95,7 +94,27 @@ WantedBy=multi-user.target
 
 (to test the connection, ssh adminsales@salessrv1.ddns.net)
 
-4) Create a script in /awaca_scriptsnlogs/scripts called send_ip.sh with this content to change the log file with the mira computer to get the IP each hour and send it to ltesrv5 /home/lteuser/public_ip-mira35cAQ4.log
+6) (new for 2025-26 maintenance campaign)
+Create a third service to create a tunnel to ltsrv2  /etc/systemd/system/reverse_ssh_ltesrv2.service, then repeat step 4
+
+[Unit]
+Description=Reverse SSH Tunnel to epfl ltesrv2
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+ExecStart=/usr/local/bin/autossh -M 0 -N -o "ServerAliveInterval=30" -o "ServerAliveCountMax=3" -o "ExitOnForwardFailure=yes" -R 9099:localhost:22 lteuser@128.178.240.186 -p 22
+Restart=always
+RestartSec=10
+User=data
+Environment="AUTOSSH_GATETIME=0"
+
+[Install]
+WantedBy=multi-user.target
+
+We should probably use different port numbers for ltesrv2. Suggested examples are 9016, 9046, 9084, 9098 (one less than the ports used for ltesrv5). Take a note of the ports implemented.
+
+7) Create a script in /awaca_scriptsnlogs/scripts called send_ip.sh with this content to get the IP each hour and send it to ltesrv5
 
 #!/bin/bash
 
@@ -106,12 +125,12 @@ public_ip=$(curl -4 -s ifconfig.me)
 ssh lteuser@ltesrv5.epfl.ch "echo $public_ip > ~/public_ip-mira35cAQ4.log"
 ssh adminsales@salessrv1.ddns.net "echo $public_ip > ~/public_ip-mira35cAQ4.log"
 
-Note to change the name of the log!
+Note to change the name of the log depending on the mira pc!
 Note changed from >> to > in order to overwrite the file rather than add to it.
 Note that curl may not work, in case can use wget instead: public_ip=$(wget -qO- https://api.ipify.org)
 
 
-5) Create a crontab job on the mirapc as data user:
+8) Create a crontab job on the mirapc as data user:
 
 EDITOR=nano crontab -e 
 
@@ -124,18 +143,7 @@ END OF STEPS TO FOLLOW
 
 
 
-I created an alias in ltesrv5 to ssh the mirapc like this sshmira35cAQ4  you can create all 4 computer in the same file /home/lteuser/.bash_aliases  add the following line for each of them alias sshmira35cAQ4='ssh data@localhost -p 9017'.
-2024.11.25 All aliases created
-
-thanks
-
-Alejo
-
-Checklist of things changed after first implementation at d17:
-- in the service remove usr/bin/autossh and change to just autossh
-- increased frequency of rsync transfer from mrr via crontab
-- changed rsync mrr to keep more mrr data on the mira and for correct folder structure (slashes at end of paths in rsync)
-
+Other notes/useful things:
 
 
 
@@ -163,20 +171,4 @@ ifconfig -a -> all details for all adaptors
 
 
 On the ltesrv5 side, Alejo will run a script to kill the port (every day), in case poorly closed connections leave the port open and busy.
-
-
-In case we have to create a hard-typed network configuration using netplan (if network manager doesn't work)
-Actually we can't do this as we don't have netplan installed....
-
-Create a file on /etc/netplan/01-network-manager-all.yaml
-
-network:
-  version: 2
-  renderer: networkd
-  ethernets:
-    enxac91a197da7a:
-      addresses: [128.178.90.2/24]
-      gateway4: 128.178.90.1
-      nameservers:
-          addresses: ["128.178.15.7", "128.178.15.8", "8.8.8.8","128.178.15.227","128.178.15.228"]
 
