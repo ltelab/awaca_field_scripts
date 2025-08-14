@@ -1,7 +1,53 @@
-# Folder Structure
+# Scripts and Setup for the MIRA PC in the AWACA OPU
+This folder contains scripts for the mira. Some of them run on the mira PC, some of them run on the control PC. This README also includes information on 'Other things to set up on the mira PC', which should be done before setting up the scripts.
+
+
+# Other things to set up on the MIRA PC
+The things below are not related to the scripts in this repository but are still important.
+
+# Network configuration for the OPU
+The MIRA has 3 or 4 ethernet ports. One of these is used to connect to the radar, one is used to connect to network 1 of the OPU and one is used to connect to network 2 of the OPU. The connections to the OPU network have to be configured:
+
+- Open YaST by clicking the application launcher (in the bottom left of the desktop, with the chameleon) and searching for YaST
+- Navigate to System -> Network Settings
+- Under **Overview**, you will see a list of network connections. One of these will be to the radar (IP address 192.168.10.60). The settings for this connection should not be changed!
+- Add two new connection for network 1 and 2 of the OPU. The IP addresses are 192.168.1.110 and 192.168.2.110. Use 'Statically Assigned IP Address'. The subnet mask is /24. For the hostname, add a sensible name like 'mira35cAQ1'. It does not matter which ethernet port is set up to network 1 and network 2, but make sure the cables go to the correct ethernet sockets on the OPU wall. Test that the IP addresses are correct by pinging the mira pc from another computer on the OPU network.
+- Under **Hostname/DNS**, add 8.8.8.8 (google) to the list of Name Servers and Domain Search List. Then check that the mira PC can access the web.
+- Under **Routing**, add two lines to the Routing table. Add the Gateway 192.168.1.1 with the Device the same as the ethernet port number used for network 1, and the Gateway 192.168.2.1 with the Device used for network 2. The Destination in both cases is 'default'.
+ 
+# ssh connection to epfl
+Follow the instructions in mira-configuration.txt
+
+# Nomachine
+Download the .rpm package from the nomachine website and run
+```
+sudo rpm -ivh pkgName_pkgVersion_arch.rpm
+```
+# Anydesk
+Download the package from the anydesk website (or copy it from another computer with internet) and install using the same commands as for nomachine above. 
+Remember to set up anydesk to allow unattended connections. Settings -> Security -> Enable Unattended Access. Add a password, so far we have used the same as for the data user. Note down the anydesk connection number and test the connection.
+
+# MESH
+Ideally, we should install mesh on the new mira PCs as a backup remote access option (even though nobody from lte has an account). Ask somebody at latmos how to do this (eg. Felipe).
+
+# NTP Time Sync
+Yast -> Time and Date -> more settings -> add the two control pcs in the table of ntp servers
+This makes sure that the time is kept in-sync with the other instruments of the OPU, even if the access to the internet fails.
+
+# Netcdf header
+Don't forget to change the site information in /ifcg/header.ini. Edit the file as sudo then, as data user, run reload_header to apply the changes. This changes the site information in the netcdf data files.
+
+# Scripts!
+
+## Folder Structure
 
 ### On the MIRA PC
 Make the following directories on the mira pc: \
+```
+cd /home/data
+mkdir awaca_scriptsnlogs
+```
+
 /home/data/awaca_scriptsnlogs \
 /home/data/awaca_scriptsnlogs/scripts \
 /home/data/awaca_scriptsnlogs/logs \
@@ -20,7 +66,7 @@ config_mrr.conf \
 push_quicklooks_epfl.sh \
 make_mira_moments.py \
 make_mrr_moments.py \
-push_moments_epfl.sh \
+push_moments_epfl.sh
 
 Add the whole quicklook_scripts folder to the scripts folder
 
@@ -34,10 +80,14 @@ Make the following directories as the mira user
 Add the following files to the scripts folder: \
 watchdog_mira_ctrlpc.py
 
-
-# Crontabs
+## Crontabs
 
 ### On the MIRA PC (as data user)
+To edit the crontab, use 
+```
+EDITOR=nano crontab -e
+```
+Don't remove the existing crontab (it might contain things used by metek), just add the lines below to the end.
 
 ```
 # AWACA data movement
@@ -82,60 +132,67 @@ BASH_ENV=~/.bashrc_conda
 0 2 * * * /usr/sbin/logrotate /home/mira/logs/logrotate.conf --state /home/mira/logs/logrotate.state
 ```
 
-# Checklist of things to check/change in the scripts
-- make sure all scripts are executable by data user
-- add crontab and check timings and paths
+## Checklist of things to check/change in the scripts
+- make sure all bash scripts are executable by the data user
+```
+chmod u+x YourScriptFileName.sh
+```
+- double check the paths and names of the scripts in the crontab
 
-### In config.conf
+#### In config.conf
 - paths
 
-### In sync_data_mira.py
+#### In sync_data_mira.py
 - path to config file
 - set sync_current_month = True
 
-### In delete_data_mira.py
+#### In delete_data_mira.py
 - path to config file
 - days_old
 
-### In watchdog_mira_local.py
+#### In watchdog_mira_local.py
 - path to config file
 
-### In watchdog_mira_ctrlpc.py
+#### In watchdog_mira_ctrlpc.py
 - path to kibble file
 
-### In rsync_recent_mrr2mira.sh
+#### In rsync_recent_mrr2mira.sh
 - mrr ip
 - check paths
 
-### In push_quicklooks_epfl.sh 
+#### In push_quicklooks_epfl.sh 
 - site
 Note that this script is a 'backup' for the script running on ltesrv5 that pulls quicklooks from the mira, in case the reverse ssh tunnel breaks. Also note that this script is important for dmc as the tunnel does not stay open. Could increase time frequency of crontab for dmc.
 
-### In make_mira_moments.py and make_mrr_moments.py
+#### In make_mira_moments.py and make_mrr_moments.py
 - set operational=True
 - paths
 
-### In push_moments_epfl.sh
+#### In push_moments_epfl.sh
 - site!
 
-### In the quicklooks scripts
+#### In the quicklooks scripts
 - check paths in plot_mira_quicklooks.py and plot_mrr_quicklooks.py
 - set operational=True
 - change the site!
-- check date structure in find_mira_znc_zenith_files.py and find_mrr_zenith_files.py
+- check the date subfolder structure in find_mira_znc_zenith_files.py and find_mrr_zenith_files.py
 
-# Watchdog
-The script on the MIRA pc makes a local kibble file in the watchdog folder and syncs it to the 2 control pcs via ftp. The script should be run every 30 minutes. The sync to the control pc is untested!
+## Watchdog
+The script on the MIRA pc makes a local kibble file in the watchdog folder and syncs it to the 2 control pcs via ftp. The script should be run every 30 minutes.
 
-The script on the control PC checks the age of the kibble and powers the mira relay off and on if the kibble is too old. 
+The script on the control PC checks the age of the kibble and powers the mira relay off and on if the kibble is too old. This is a very basic system to attempt to restart the insruments. In reality, someone at EPFL will check and troubleshoot using starlink...
 
-# Quicklooks
-The quicklooks are created using the python scripts in the quicklooks_scripts folder. Since xarray is required, the script run in a conda environemnet. The mrr quicklooks are also made on the mira pc. For this the mrr data from the last 2 days are synced to the mira pc using rsync_recent_mrr2mira.sh. Only the last 2 days of mrr data are stored on the mira pc.
+## Quicklooks
+The quicklooks are created using the python scripts in the quicklooks_scripts folder. Since the python package xarray is required, the scripts run in a conda environemnet. The mrr quicklooks are also made on the mira pc. For this reason, the mrr data from the last 2 days are synced to the mira pc using rsync_recent_mrr2mira.sh. Only the last 2 days of mrr data are stored on the mira pc.
 
-Add the id_rsa.pub of the mira to the authorized_keys file on the MRR!! And check the ssh connection.
+To enable the ssh connection between the mira and the mrr (only possible after the network configuration of the mira, see below), you need to add the public ssh key of the mira to the authorized_keys file on the mrr:
+- copy the contents of /home/data/.ssh/id_rsa.pub 
+- ssh to the mrr using the password (ask Heather for the credentials)
+- paste the contents into /home/mrruser/.ssh/authorized_keys
+- check that the ssh connection then works without asking for the password
 
 ## Installing conda on the MIRA PC
-Either download the correct .sh file directly from the repo, or copy from another computer if no internet.
+Either download the correct .sh file directly from the repo, or copy from another computer if there is no internet.
 ```
 08/07/2024 12:56 sudo zypper refresh
 08/07/2024 12:59 pwd
@@ -160,8 +217,8 @@ Either download the correct .sh file directly from the repo, or copy from anothe
 ```
 
 ## Setting up conda environment
-The required packages for the quicklooks scripts are numpy, pandas, netdf4, xarray, matplotlib
-The environment can be made from the .yml file if the computer has access to the internet:
+The required python packages for the quicklooks scripts are numpy, pandas, netdf4, xarray, matplotlib
+The conda environment can be made from the .yml file if the computer has access to the internet:
 ```
 conda env create -f quicklook_env.yml
 ```
@@ -189,27 +246,14 @@ Follow the instructions in https://stackoverflow.com/questions/36365801/run-a-cr
 - copy the conda snippet from the end of the .bashrc file to a new file .bashrc_conda:
 ```
 cd ~
-cat .bashrc #copy the conda snippet
+cat .bashrc #copy the conda snippet at the end. It starts and ends with # >>> conda initialise >>>
 nano .bashrc_conda #paste the conda snippet
 ```
 - make sure the crontab uses the correct bashrc file and activates the environment (see crontab above)
 
-## ssh connection to epfl
-Follow the instrcutions in mira-configuration.txt!
 
-## Netcdf header
-Don't forget to change the site information in /ifcg/header.ini. Edit the file as sudo then, as data user, run reload_header to apply the changes.
-
-## nomachine
-Download the .rpm package from the nomachine website and run
-```
-sudo rpm -ivh pkgName_pkgVersion_arch.rpm
-```
-
-## NTP Time Sync
-Yast -> Time and Date -> more settings -> add the two control pcs in the table of ntp servers
-
-## logrotate
+# logrotate (low priority)
+To avoid log files becoming very large over the year, we use logrotate. Note that this is not very important and can be set up remotely after leaving the site.
 Information: https://betterstack.com/community/guides/logging/how-to-manage-log-files-with-logrotate-on-ubuntu-20-04/
 
 We use the first option for the mira pc, and the system-independent option for the control pc (no sudo access)
