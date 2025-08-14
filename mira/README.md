@@ -185,7 +185,7 @@ The script on the control PC checks the age of the kibble and powers the mira re
 ## Quicklooks
 The quicklooks are created using the python scripts in the quicklooks_scripts folder. Since the python package xarray is required, the scripts run in a conda environemnet. The mrr quicklooks are also made on the mira pc. For this reason, the mrr data from the last 2 days are synced to the mira pc using rsync_recent_mrr2mira.sh. Only the last 2 days of mrr data are stored on the mira pc.
 
-To enable the ssh connection between the mira and the mrr (only possible after the network configuration of the mira, see below), you need to add the public ssh key of the mira to the authorized_keys file on the mrr:
+To enable the ssh connection between the mira and the mrr (only possible after the network configuration of the mira, see above), you need to add the public ssh key of the mira to the authorized_keys file on the mrr:
 - copy the contents of /home/data/.ssh/id_rsa.pub 
 - ssh to the mrr using the password (ask Heather for the credentials)
 - paste the contents into /home/mrruser/.ssh/authorized_keys
