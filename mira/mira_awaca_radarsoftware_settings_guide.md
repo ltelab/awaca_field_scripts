@@ -12,17 +12,17 @@ The radar control graphical software is opened by running `lincc` in a terminal.
 
 Connect to the radar by clicking on 'CONN' and adding the following settings. The password is the same as for the data user of the mira pc.
 
-![lincc login page](/doc_images/lincc_login.png)
+![lincc login page](/mira/doc_images/lincc_login.png)
 
 Turn the radar on by successively pressing the 'on' buttons next to Receiver, Transmittor, Radiation. You can ignore the warning about pressure in the waveguides. All the small 'lights' should be green. If the radar is radiating, the red light on the radar box turns on.
 
 The settings used in the awaca campaign are as below. Note that in lincc, 'Update' means retrieve the current setting from the radar pc, whereas 'Apply' means save and apply the new settings inputted into the boxes.
 
-![lincc settings](/doc_images/lincc_settings.png)
+![lincc settings](/mira/doc_images/lincc_settings.png)
 
 You should make sure that Autorestart is turned on. This is found under 'HEALTH' -> 'SUB-SYSTEM'
 
-![lincc autorestart](/doc_images/lincc_autorestart.png)
+![lincc autorestart](/mira/doc_images/lincc_autorestart.png)
 
 Under 'HEALTH' -> 'ERRORS' you can see current errors.
 
