@@ -251,6 +251,50 @@ nano .bashrc_conda #paste the conda snippet
 ```
 - make sure the crontab uses the correct bashrc file and activates the environment (see crontab above)
 
+# Remote shutdown
+1. On the MIRA PC, you first have to add the remote_shutdown.sh script in the folder /home/data/awaca_scriptsnlogs/scripts 
+
+```
+#!/bin/bash
+
+while true; do
+    dt=$(date '+%Y/%m/%d %H:%M:%S');
+    num=$(echo Step | netcat 192.168.1.11 8082)
+    echo "$dt : current power state $num "
+    
+    if [ "$num" -ge 3 ]; then
+        echo "Shutting down "
+        /sbin/shutdown -h now
+    fi
+    sleep 10
+done
+```
+2. Then, make sure it is executable (if not use chmod).
+
+3. Create a systemd service with this name remote_shutdown.service in the folder /etc/systemd/system/remote_shutdown.service on the mirapc
+
+[Unit]
+Description=Looped power state check and conditional shutdown of the PC
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/home/data/awaca_scriptsnlogs/scripts/remote_shutdown.sh
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+
+4. Then run:
+
+sudo systemctl daemon-reload
+sudo systemctl restart remote_shutdown.service
+sudo systemctl enable remote_shutdown.service 
+sudo systemctl status remote_shutdown.service 
+
+
 
 # logrotate (low priority)
 To avoid log files becoming very large over the year, we use logrotate. Note that this is not very important and can be set up remotely after leaving the site.
