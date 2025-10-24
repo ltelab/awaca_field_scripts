@@ -114,7 +114,7 @@ WantedBy=multi-user.target
 
 We should probably use different port numbers for ltesrv2. Suggested examples are 9016, 9046, 9084, 9098 (one less than the ports used for ltesrv5). Take a note of the ports implemented.
 
-7) Create a script in /awaca_scriptsnlogs/scripts called send_ip.sh with this content to get the IP each hour and send it to ltesrv5
+7) Create a script in /awaca_scriptsnlogs/scripts called send_ip.sh with this content to get the IP each hour and send it to ltesrv5 and two of Alejo's servers
 
 #!/bin/bash
 
@@ -124,6 +124,7 @@ public_ip=$(curl -4 -s ifconfig.me)
 # Send IP to remote server
 ssh lteuser@ltesrv5.epfl.ch "echo $public_ip > ~/public_ip-mira35cAQ4.log"
 ssh adminsales@salessrv1.ddns.net "echo $public_ip > ~/public_ip-mira35cAQ4.log"
+ssh radarop@aslinformatiques.ddns.net "echo $public_ip > ~/public_ip-mira35cAQ4.log"
 
 Note to change the name of the log depending on the mira pc!
 Note changed from >> to > in order to overwrite the file rather than add to it.
