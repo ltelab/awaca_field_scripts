@@ -36,7 +36,7 @@ ssh -MNf $REMOTE
 # raid MIRA and MRR
 for site in d17 d47 d85 dmc; do
 	rsync -rva /awaca/raid/$site/mrr/quicklooks/ $REMOTE:/bdd/AWACA/QUICKLOOK/$site/mrr/
-	rsync -rva /awaca/raid/$site/mrr/quicklooks/ $REMOTE:/bdd/AWACA/QUICKLOOK/$site/mrr/	
+	rsync -rva /awaca/raid/$site/mira/quicklooks/ $REMOTE:/bdd/AWACA/QUICKLOOK/$site/mira/	
 done
 
 #DDU mrr
