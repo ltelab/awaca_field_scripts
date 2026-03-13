@@ -45,6 +45,8 @@ rsync -rva /awaca/ddu/mrr/quicklooks/ $REMOTE:/bdd/AWACA/QUICKLOOK/ddu/mrr/
 #DDU stxpol
 rsync -rva /awaca/ddu/stxpol/quicklooks/ $REMOTE:/bdd/AWACA/QUICKLOOK/ddu/stxpol/
 
+# DDU windprof
+rsync -rva /awaca/ddu/windprof/quicklooks/ $REMOTE:/bdd/AWACA/QUICKLOOK/ddu/windprof/
 
 # DDU wprof
 
