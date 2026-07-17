@@ -83,6 +83,11 @@ def find_mira_znc_zenith_files(start_datetime, end_datetime,
     mask = np.array([start_datetime <= i <= end_datetime for i in dates])
     files_subset = np.array(correct_files)[mask]
     
+    # ADDITION H.Corden 17/07/2026
+    # avoid plotting the current hour to avoid netcdf corruption
+    current_hour = dt.datetime.utcnow().strftime("%Y%m%d_%H")
+    files_subset = [i for i in files_subset if not current_hour in i]
+    
     if len(files_subset) == 0:
         print(f"no files meeting date requirement found for {fpath}, returning None")
         return None
