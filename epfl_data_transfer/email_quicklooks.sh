@@ -2,7 +2,7 @@
 
 umask 002
 
-# a script to email quicklooks from ltesrv5 to Alexis
+# a script to email quicklooks from ltesrv5 to Alexis Berne
 # see the file email_quicklooks_setup.txt for information on how this works
 
 
@@ -11,13 +11,14 @@ SUBJECT="AWACA quicklooks - $(date -d "yesterday" +%Y-%m-%d)"
 BODY="Hello,
 
 Please find attached the AWACA quicklooks for $(date -d "yesterday" +%Y-%m-%d). If a file is missing, it was not found on ltesrv5.
-
 "
 
-RECIPIENTS=("heather.corden@epfl.ch" "alexis.berne@epfl.ch")
-
+RECIPIENTS=("lea.raillard@epfl.ch" "emma.lelouarn@epfl.ch" "justine.charrel@lmd.ipsl.fr" "bauer@metek.de" "heather.corden@epfl.ch" "alexis.berne@epfl.ch" "morgane.weiss@epfl.ch" "alejandro.salamanca@epfl.ch" "pierre.grzegorczyk@epfl.ch" "meteoddu@ddu.ipev.fr" "instrum@ddu.ipev.fr")
+#RECIPIENTS=("heather.corden@epfl.ch")
+#RECIPIENTS=("alejandro.salamanca@epfl.ch")
 
 YESTERDAY=$(date -d "yesterday" +%Y%m%d)
+#YESTERDAY="20260825"
 YEAR="${YESTERDAY:0:4}"
 MONTH="${YESTERDAY:4:2}"
 DAY="${YESTERDAY:6:2}"
@@ -34,7 +35,13 @@ CANDIDATE_FILES=(
     "/awaca/raid/d47/mrr/quicklooks/${YEAR}/${MONTH}/${DAY}/${YESTERDAY}_mrr_zenith_day_d47_Z.png"
     "/awaca/raid/d85/mrr/quicklooks/${YEAR}/${MONTH}/${DAY}/${YESTERDAY}_mrr_zenith_day_d85_Z.png"
     "/awaca/raid/dmc/mira/quicklooks/${YEAR}/${MONTH}/${DAY}/${YESTERDAY}_mira_zenith_day_dmc_Zg.png"
-    "/awaca/raid/dmc/mrr/quicklooks/${YEAR}/${MONTH}/${DAY}/${YESTERDAY}_mrr_zenith_day_dmc_Z.png"   
+    "/awaca/raid/dmc/mrr/quicklooks/${YEAR}/${MONTH}/${DAY}/${YESTERDAY}_mrr_zenith_day_dmc_Z.png"  
+    "/awaca/ddu/windprof/quicklooks/${YEAR}/${MONTH}/${DAY}/${YESTERDAY}_windprof_quicklook.png"
+    "/awaca/raid/d17/awacasurf/quicklooks/${YEAR}/${MONTH}/SURFWEATHER_d17_${YESTERDAY}.png"
+    "/awaca/raid/d47/awacasurf/quicklooks/${YEAR}/${MONTH}/SURFWEATHER_d47_${YESTERDAY}.png"
+    "/awaca/raid/d85/awacasurf/quicklooks/${YEAR}/${MONTH}/SURFWEATHER_d85_${YESTERDAY}.png"
+    "/awaca/raid/dmc/awacasurf/quicklooks/${YEAR}/${MONTH}/SURFWEATHER_dmc_${YESTERDAY}.png"   
+#    "/awaca/ddu/lidar/quicklooks/${YEAR}/${MONTH}/${DAY}/${YESTERDAY}_lidar_quicklook.png"
 )
 
 # === Check which files exist ===
@@ -60,4 +67,3 @@ CMD+=(-- "${RECIPIENTS[@]}")
 
 # === Send the email ===
 "${CMD[@]}" <<< "$BODY"
-
